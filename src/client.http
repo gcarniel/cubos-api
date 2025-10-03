@@ -1,0 +1,15 @@
+
+
+### Health Check
+GET http://localhost:3333/health    
+
+### Register User
+POST http://localhost:3333/auth/register 
+content-type: application/json
+
+{
+    "name": "sample",
+    "email": "sample@sample.com",
+    "password": "sample",
+    "confirmPassword": "sample"
+}
