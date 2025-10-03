@@ -14,3 +14,21 @@ export const registerUserSchema = z
   });
 
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
+
+export const loginSchema = z
+  .object({
+    email: z.email("Email inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+  });
+
+export const loginOutputSchema = z.object({
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+  }),
+  token: z.string(),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
+export type LoginOutput = z.infer<typeof loginOutputSchema>;

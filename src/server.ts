@@ -9,6 +9,7 @@ import {
 import { env } from "./env.js";
 import { authRoutes} from "./routes/auth-route.js";
 import { errorHandler } from "./errors/error-handler.js";
+import { fastifyJwt } from "@fastify/jwt";
 import { fastifySwagger } from "@fastify/swagger";
 import { fastifySwaggerUi } from "@fastify/swagger-ui";
 
@@ -21,7 +22,11 @@ app.setErrorHandler(errorHandler)
 
 app.register(fastifyCors);
 
- app.register(fastifySwagger, {
+app.register(fastifyJwt, {
+  secret: env.JWT_SECRET,
+})
+
+app.register(fastifySwagger, {
   openapi: {
     info: {
       title: 'Cubos Movies API',

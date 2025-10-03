@@ -13,3 +13,12 @@ content-type: application/json
     "password": "sample",
     "confirmPassword": "sample"
 }
+
+### Login User
+POST http://localhost:3333/auth/login 
+content-type: application/json
+
+{
+    "email": "sample@sample.com",
+    "password": "sample"
+}
