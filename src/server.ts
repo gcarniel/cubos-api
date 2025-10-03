@@ -1,6 +1,7 @@
 import fastifyCors from "@fastify/cors";
 import fastify from "fastify";
 import {
+  jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
   type ZodTypeProvider,
@@ -8,6 +9,8 @@ import {
 import { env } from "./env.js";
 import { authRoutes} from "./routes/auth-route.js";
 import { errorHandler } from "./errors/error-handler.js";
+import { fastifySwagger } from "@fastify/swagger";
+import { fastifySwaggerUi } from "@fastify/swagger-ui";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
@@ -18,6 +21,35 @@ app.setErrorHandler(errorHandler)
 
 app.register(fastifyCors);
 
+ app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: 'Cubos Movies API',
+      description: 'API de gerenciamento de filmes - Desafio Cubos Tecnologia',
+      version: '1.0.0',
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  transform: jsonSchemaTransform,
+})
+
+ app.register(fastifySwaggerUi, {
+  routePrefix: '/docs',
+  uiConfig: {
+    docExpansion: 'list',
+    deepLinking: false,
+  },
+  staticCSP: true,
+})
+
 app.register(authRoutes, {prefix: '/auth'})
 
 app.get('/health', async () => {
@@ -25,5 +57,5 @@ app.get('/health', async () => {
 })
 
 app.listen({ port: env.PORT, host: env.HOST }).then(() => {
-  console.log("HTTP server running!");
+  console.log(`🚀🚀🚀 HTTP server running on http://${env.HOST}:${env.PORT}`);
 });
