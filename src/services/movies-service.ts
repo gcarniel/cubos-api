@@ -1,5 +1,8 @@
 import { ConflictError } from '@/errors/conflict-error.js'
-import type { MovieRegisterInput } from '@/schemas/movies.schema.js'
+import type {
+  MovieListParamsInput,
+  MovieRegisterInput,
+} from '@/schemas/movies.schema.js'
 import { prisma } from '../lib/prisma.js'
 
 export async function createMovieService(
@@ -41,6 +44,111 @@ export async function createMovieService(
   })
 
   return { id: createdMovie.id }
+}
+
+export async function listMoviesService(params: MovieListParamsInput) {
+  const {
+    search,
+    page,
+    take,
+    minRating,
+    maxRating,
+    minReleaseDate,
+    maxReleaseDate,
+    minDuration,
+    maxDuration,
+    sort,
+    orderBy,
+  } = params
+
+  const takeNum = Math.min(Math.max(parseInt(String(take)) || 10, 1), 100) // limite de 100
+  const pageNum = Math.max(parseInt(String(page)) || 1, 1)
+  const skipNum = (pageNum - 1) * takeNum
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: any = {}
+
+  if (search) {
+    where.OR = [
+      { title: { contains: String(search), mode: 'insensitive' } },
+      { originalTitle: { contains: String(search), mode: 'insensitive' } },
+    ]
+  }
+
+  if (minRating && maxRating) {
+    where.rating = {}
+    if (minRating) where.rating.gte = Number(minRating)
+    if (maxRating) where.rating.lte = Number(maxRating)
+  }
+
+  if (minReleaseDate && maxReleaseDate) {
+    where.releaseDate = {}
+    if (minReleaseDate) where.releaseDate.gte = minReleaseDate
+    if (maxReleaseDate) where.releaseDate.lte = maxReleaseDate
+  }
+
+  if (minDuration && maxDuration) {
+    where.duration = {}
+    if (minDuration) where.duration.gte = Number(minDuration)
+    if (maxDuration) where.duration.lte = Number(maxDuration)
+  }
+
+  const allowedSortFields = new Set([
+    'createdAt',
+    'title',
+    'rating',
+    'releaseYear',
+    'originalTitle',
+    'duration',
+    'budget',
+    'revenue',
+    'profit',
+    'popularity',
+    'voteAverage',
+    'voteCount',
+    'posterUrl',
+    'coverUrl',
+    'trailerUrl',
+  ])
+  const orderByField = allowedSortFields.has(orderBy ?? 'releaseDate')
+    ? orderBy
+    : 'releaseDate'
+
+  const [movies, totalMovies] = await Promise.all([
+    prisma.movie.findMany({
+      where,
+      include: {
+        movieGenres: {
+          include: {
+            genre: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      orderBy: {
+        [orderByField || 'releaseDate']: sort,
+      },
+      take: takeNum,
+      skip: skipNum,
+    }),
+
+    prisma.movie.count({
+      where,
+    }),
+  ])
+
+  return {
+    movies,
+    totalMovies,
+    totalPages: Math.ceil(totalMovies / takeNum),
+    currentPage: Math.floor(skipNum / takeNum) + 1,
+    hasNextPage: skipNum + takeNum < totalMovies,
+    hasPreviousPage: skipNum > 0,
+  }
 }
 
 export async function listGenresService() {
