@@ -20,7 +20,7 @@ export const movieRegisterSchema = z.object({
   voteAverage: z.number().min(1, 'Campo média de votos é obrigatório'),
   voteCount: z.number().min(1, 'Campo contagem de votos é obrigatório'),
   posterUrl: z.url(),
-  coverUrl: z.url().optional(),
+  coverUrl: z.url().optional().nullable(),
   trailerUrl: z.url({ message: 'Campo link do trailer é obrigatório' }),
 })
 
