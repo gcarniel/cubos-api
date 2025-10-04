@@ -14,6 +14,8 @@ import { fastifySwagger } from '@fastify/swagger'
 import { fastifySwaggerUi } from '@fastify/swagger-ui'
 import { moviesRoutes } from './routes/movie-route.js'
 import { auth } from './middlewares/authenticate.js'
+import { filesRoutes } from './routes/files-route.js'
+import multipart from '@fastify/multipart'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -31,6 +33,13 @@ app.register(fastifyCors, {
 
 app.register(fastifyJwt, {
   secret: env.JWT_SECRET,
+})
+
+app.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+    files: 1,
+  },
 })
 
 app.register(fastifySwagger, {
@@ -63,6 +72,9 @@ app.register(fastifySwaggerUi, {
 })
 
 app.register(authRoutes, { prefix: '/auth' })
+
+app.register(filesRoutes, { prefix: '/files' })
+
 app.register(async (priv) => {
   priv.register(auth)
   priv.register(moviesRoutes, { prefix: '/movies' })
