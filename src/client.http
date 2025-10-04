@@ -1,11 +1,16 @@
 
+### Variables 
+@apiurl = http://localhost:3333
+@authToken = 
+
+
 
 ### Health Check
-GET http://localhost:3333/health    
+GET {{apiurl}}/health    
 
 ### Register User
-POST http://localhost:3333/auth/register 
-content-type: application/json
+POST {{apiurl}}/auth/register 
+Content-Type: application/json
 
 {
     "name": "sample",
@@ -14,11 +19,22 @@ content-type: application/json
     "confirmPassword": "sample"
 }
 
+# @name login
 ### Login User
-POST http://localhost:3333/auth/login 
-content-type: application/json
+POST {{apiurl}}/auth/login 
+Content-Type: application/json
 
 {
     "email": "sample@sample.com",
     "password": "sample"
 }
+
+### Create Movie
+POST {{apiurl}}/movies 
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "title": "sample"
+}
+
