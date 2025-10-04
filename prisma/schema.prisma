@@ -21,6 +21,52 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  movies    Movie[]
 
   @@map("users")
+}
+
+model Movie {
+  id            String   @id @default(cuid())
+  title         String
+  originalTitle String   @map("original_title")
+  duration      Int
+  budget        Int
+  revenue       Int
+  profit        Int
+  sinopsis      String
+  language      String
+  releaseDate   DateTime @map("release_date")
+  popularity    Int
+  voteAverage   Int      @map("vote_average")
+  voteCount     Int      @map("vote_count")
+  posterUrl     String   @map("poster_url")
+  coverUrl      String?  @map("cover_url")
+  trailerUrl    String   @map("trailer_url")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  movieGenres MovieGenre[]
+
+  @@map("movies")
+}
+
+model Genre {
+  id          String       @id @default(cuid())
+  name        String
+  movieGenres MovieGenre[]
+
+  @@map("genres")
+}
+
+model MovieGenre {
+  movieId String
+  genreId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  @@id([movieId, genreId])
 }
