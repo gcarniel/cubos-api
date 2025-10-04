@@ -1,13 +1,19 @@
-import type { FastifyInstance } from "fastify";
-import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { loginOutputSchema, loginSchema, registerUserSchema } from "../schemas/auth.schema.js";
-import { loginUserService, registerUserService } from "../services/auth-service.js";
-import z from "zod";
-import { env } from "@/env.js";
+import type { FastifyInstance } from 'fastify'
+import type { ZodTypeProvider } from 'fastify-type-provider-zod'
+import {
+  loginOutputSchema,
+  loginSchema,
+  registerUserSchema,
+} from '../schemas/auth.schema.js'
+import {
+  loginUserService,
+  registerUserService,
+} from '../services/auth-service.js'
+import z from 'zod'
 
 export async function authRoutes(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().post(
-    "/register",
+    '/register',
     {
       schema: {
         tags: ['Auth'],
@@ -19,14 +25,14 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      await registerUserService(request.body);
+      await registerUserService(request.body)
 
-      return reply.status(201).send();
+      return reply.status(201).send()
     },
-  );
+  )
 
   app.withTypeProvider<ZodTypeProvider>().post(
-    "/login",
+    '/login',
     {
       schema: {
         tags: ['Auth'],
@@ -38,18 +44,21 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const { email, password } = request.body;
-      const data = await loginUserService({ email, password });
+      const { email, password } = request.body
+      const data = await loginUserService({ email, password })
 
       const user = {
         id: data.id,
         name: data.name,
         email: data.email,
-      };
-      
-      const token = await reply.jwtSign({ sub: data.id }, {sign: {expiresIn: '7d'}});
+      }
 
-      return reply.status(200).send({ user, token });
+      const token = await reply.jwtSign(
+        { sub: data.id },
+        { sign: { expiresIn: '7d' } },
+      )
+
+      return reply.status(200).send({ user, token })
     },
-  );
+  )
 }
