@@ -16,6 +16,7 @@ import { moviesRoutes } from './routes/movie-route.js'
 import { auth } from './middlewares/authenticate.js'
 import { filesRoutes } from './routes/files-route.js'
 import multipart from '@fastify/multipart'
+import { setupMovieReleaseCron } from './services/movies-chron-service.js'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -37,10 +38,12 @@ app.register(fastifyJwt, {
 
 app.register(multipart, {
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: 5 * 1024 * 1024, // 5MB
     files: 1,
   },
 })
+
+setupMovieReleaseCron()
 
 app.register(fastifySwagger, {
   openapi: {
