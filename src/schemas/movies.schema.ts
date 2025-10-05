@@ -57,6 +57,11 @@ export const movieListOutputSchema = z.object({
   hasPreviousPage: z.boolean(),
 })
 
+export const movieGetByIdSchema = movieRegisterSchema.extend({
+  id: z.string(),
+  userId: z.string(),
+})
+
 export const movieUpdateSchema = movieRegisterSchema.extend({ id: z.string() })
 
 export type MovieRegisterInput = z.infer<typeof movieRegisterSchema>
@@ -64,3 +69,4 @@ export type MovieUpdateInput = z.infer<typeof movieUpdateSchema>
 export type MovieListParamsInput = z.infer<typeof movieListParamsSchema>
 export type MovieListOutput = z.infer<typeof movieListOutputSchema>
 export type GenreOutput = z.infer<typeof genreSchema>
+export type MovieGetByIdOutput = z.infer<typeof movieGetByIdSchema>

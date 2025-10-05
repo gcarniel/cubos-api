@@ -4,6 +4,7 @@ import type {
   MovieRegisterInput,
 } from '@/schemas/movies.schema.js'
 import { prisma } from '../lib/prisma.js'
+import { NotFoundError } from '@/errors/not-found-error.js'
 
 export async function createMovieService(
   movie: MovieRegisterInput,
@@ -149,6 +150,32 @@ export async function listMoviesService(params: MovieListParamsInput) {
     hasNextPage: skipNum + takeNum < totalMovies,
     hasPreviousPage: skipNum > 0,
   }
+}
+
+export async function getMovieByIdService(id: string) {
+  const movie = await prisma.movie.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      movieGenres: {
+        include: {
+          genre: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  })
+
+  if (!movie) {
+    throw new NotFoundError('Filme não encontrado')
+  }
+
+  return movie
 }
 
 export async function listGenresService() {

@@ -1,11 +1,13 @@
 import {
   genreSchema,
+  movieGetByIdSchema,
   movieListOutputSchema,
   movieListParamsSchema,
   movieRegisterSchema,
 } from '@/schemas/movies.schema.js'
 import {
   createMovieService,
+  getMovieByIdService,
   listGenresService,
   listMoviesService,
 } from '@/services/movies-service.js'
@@ -86,6 +88,37 @@ export async function moviesRoutes(app: FastifyInstance) {
         currentPage,
         hasNextPage,
         hasPreviousPage,
+      })
+    },
+  )
+
+  app.withTypeProvider<ZodTypeProvider>().get(
+    '/:id',
+    {
+      schema: {
+        tags: ['Movies'],
+        description: 'Recuperar um filme',
+        security: [{ bearerAuth: [] }],
+        params: z.object({
+          id: z.string(),
+        }),
+        response: {
+          200: movieGetByIdSchema,
+          404: z.void(),
+        },
+      },
+    },
+    async (request, reply) => {
+      const movie = await getMovieByIdService(request.params.id)
+
+      return reply.status(200).send({
+        ...movie,
+        userId: movie.user.id,
+        genre: movie.movieGenres.map((movieGenre) =>
+          genreSchema.parse(movieGenre.genre),
+        ),
+        coverUrl: movie.coverUrl || undefined,
+        releaseDate: movie.releaseDate.toISOString(),
       })
     },
   )
