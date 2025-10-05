@@ -16,7 +16,7 @@ export const movieRegisterSchema = z.object({
   duration: z.number().min(1, 'Campo duração é obrigatório'),
   budget: z.number().min(1, 'Campo orçamento é obrigatório'),
   revenue: z.number().min(1, 'Campo receita é obrigatório'),
-  profit: z.number().min(1, 'Campo lucro é obrigatório'),
+  profit: z.number(),
   sinopsis: z.string().min(1, 'Campo sinopse é obrigatório'),
   genre: z.array(genreSchema).min(1, 'Campo gênero é obrigatório'),
   language: z.string().min(1, 'Campo idioma é obrigatório'),
