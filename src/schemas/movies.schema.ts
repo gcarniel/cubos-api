@@ -59,7 +59,10 @@ export const movieListOutputSchema = z.object({
 
 export const movieGetByIdSchema = movieRegisterSchema.extend({
   id: z.string(),
-  userId: z.string(),
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
 })
 
 export const movieUpdateSchema = movieRegisterSchema.extend({ id: z.string() })

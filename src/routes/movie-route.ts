@@ -97,7 +97,10 @@ export async function moviesRoutes(app: FastifyInstance) {
 
       const moviesWithGenres = movies.map((movie) => ({
         ...movie,
-        userId: movie.user.id,
+        user: {
+          id: movie.user.id,
+          name: movie.user.name,
+        },
         genre: movie.movieGenres.map((movieGenre) =>
           genreSchema.parse(movieGenre.genre),
         ),
@@ -137,7 +140,10 @@ export async function moviesRoutes(app: FastifyInstance) {
 
       return reply.status(200).send({
         ...movie,
-        userId: movie.user.id,
+        user: {
+          id: movie.user.id,
+          name: movie.user.name,
+        },
         genre: movie.movieGenres.map((movieGenre) =>
           genreSchema.parse(movieGenre.genre),
         ),

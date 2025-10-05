@@ -187,6 +187,7 @@ export async function listMoviesService(params: MovieListParamsInput) {
         user: {
           select: {
             id: true,
+            name: true,
           },
         },
       },
@@ -226,6 +227,7 @@ export async function getMovieByIdService(id: string) {
       user: {
         select: {
           id: true,
+          name: true,
         },
       },
     },
