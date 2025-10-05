@@ -47,7 +47,7 @@ model Movie {
   updatedAt     DateTime @updatedAt
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   movieGenres MovieGenre[]
 
@@ -66,7 +66,7 @@ model MovieGenre {
   movieId String
   genreId String
   movie   Movie  @relation(fields: [movieId], references: [id])
-  genre   Genre  @relation(fields: [genreId], references: [id])
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
 
   @@id([movieId, genreId])
 }
