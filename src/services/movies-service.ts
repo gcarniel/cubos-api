@@ -5,6 +5,7 @@ import type {
 } from '@/schemas/movies.schema.js'
 import { prisma } from '../lib/prisma.js'
 import { NotFoundError } from '@/errors/not-found-error.js'
+import { UnauthorizedError } from '@/errors/unauthorized-error.js'
 
 export async function createMovieService(
   movie: MovieRegisterInput,
@@ -176,6 +177,41 @@ export async function getMovieByIdService(id: string) {
   }
 
   return movie
+}
+
+export async function deleteMovieService(id: string, userId: string) {
+  const movie = await prisma.movie.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  })
+
+  if (!movie) {
+    throw new NotFoundError('Filme não encontrado')
+  }
+
+  if (movie.user.id !== userId) {
+    throw new UnauthorizedError(
+      'Você não tem permissão para deletar esse filme',
+    )
+  }
+
+  await prisma.movieGenre.deleteMany({
+    where: { movieId: id },
+  })
+
+  await prisma.movie.delete({
+    where: {
+      id,
+    },
+  })
 }
 
 export async function listGenresService() {

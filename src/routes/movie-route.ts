@@ -7,6 +7,7 @@ import {
 } from '@/schemas/movies.schema.js'
 import {
   createMovieService,
+  deleteMovieService,
   getMovieByIdService,
   listGenresService,
   listMoviesService,
@@ -120,6 +121,29 @@ export async function moviesRoutes(app: FastifyInstance) {
         coverUrl: movie.coverUrl || undefined,
         releaseDate: movie.releaseDate.toISOString(),
       })
+    },
+  )
+
+  app.withTypeProvider<ZodTypeProvider>().delete(
+    '/:id',
+    {
+      schema: {
+        tags: ['Movies'],
+        description: 'Deletar um filme',
+        security: [{ bearerAuth: [] }],
+        params: z.object({
+          id: z.string(),
+        }),
+        response: {
+          204: z.void(),
+        },
+      },
+    },
+    async (request, reply) => {
+      const userId = request.userId
+      await deleteMovieService(request.params.id, userId)
+
+      return reply.status(204).send()
     },
   )
 
