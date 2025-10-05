@@ -2,6 +2,7 @@ import { ConflictError } from '@/errors/conflict-error.js'
 import type {
   MovieListParamsInput,
   MovieRegisterInput,
+  MovieUpdateInput,
 } from '@/schemas/movies.schema.js'
 import { prisma } from '../lib/prisma.js'
 import { NotFoundError } from '@/errors/not-found-error.js'
@@ -46,6 +47,64 @@ export async function createMovieService(
   })
 
   return { id: createdMovie.id }
+}
+
+export async function updateMovieService(
+  movie: MovieUpdateInput,
+  userId: string,
+) {
+  const foundMovie = await prisma.movie.findFirst({
+    where: { id: movie.id },
+  })
+
+  if (!foundMovie) {
+    throw new NotFoundError('Filme não encontrado')
+  }
+
+  if (foundMovie.userId !== userId) {
+    throw new UnauthorizedError(
+      'Você não tem permissão para atualizar esse filme',
+    )
+  }
+
+  const existingMovie = await prisma.movie.findFirst({
+    where: { title: movie.title, id: { not: movie.id } },
+  })
+
+  if (existingMovie) {
+    throw new ConflictError('Filme já cadastrado com esse título')
+  }
+
+  const updatedMovie = await prisma.movie.update({
+    where: { id: movie.id },
+    data: {
+      title: movie.title,
+      originalTitle: movie.originalTitle,
+      duration: movie.duration,
+      budget: movie.budget,
+      revenue: movie.revenue,
+      profit: movie.profit,
+      sinopsis: movie.sinopsis,
+      language: movie.language,
+      releaseDate: movie.releaseDate,
+      popularity: movie.popularity,
+      voteAverage: movie.voteAverage,
+      voteCount: movie.voteCount,
+      posterUrl: movie.posterUrl,
+      coverUrl: movie.coverUrl || null,
+      trailerUrl: movie.trailerUrl,
+      movieGenres: {
+        deleteMany: {
+          movieId: foundMovie.id,
+        },
+        create: movie.genre.map((genre) => ({
+          genreId: genre.id,
+        })),
+      },
+    },
+  })
+
+  return { id: updatedMovie.id }
 }
 
 export async function listMoviesService(params: MovieListParamsInput) {

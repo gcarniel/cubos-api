@@ -4,6 +4,7 @@ import {
   movieListOutputSchema,
   movieListParamsSchema,
   movieRegisterSchema,
+  movieUpdateSchema,
 } from '@/schemas/movies.schema.js'
 import {
   createMovieService,
@@ -11,6 +12,7 @@ import {
   getMovieByIdService,
   listGenresService,
   listMoviesService,
+  updateMovieService,
 } from '@/services/movies-service.js'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -35,6 +37,27 @@ export async function moviesRoutes(app: FastifyInstance) {
       await createMovieService(request.body, userId)
 
       return reply.status(201).send()
+    },
+  )
+
+  app.withTypeProvider<ZodTypeProvider>().put(
+    '/:id',
+    {
+      schema: {
+        tags: ['Movies'],
+        description: 'Atualizar um filme',
+        security: [{ bearerAuth: [] }],
+        body: movieUpdateSchema,
+        response: {
+          200: z.object({ id: z.string() }),
+        },
+      },
+    },
+    async (request, reply) => {
+      const userId = request.userId
+      await updateMovieService(request.body, userId)
+
+      return reply.status(200).send({ id: request.body.id })
     },
   )
 
