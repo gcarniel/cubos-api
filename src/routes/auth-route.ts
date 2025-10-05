@@ -6,8 +6,10 @@ import {
   registerUserSchema,
 } from '../schemas/auth.schema.js'
 import {
+  forgotPasswordUserService,
   loginUserService,
   registerUserService,
+  resetPasswordUserService,
 } from '../services/auth-service.js'
 import z from 'zod'
 
@@ -28,6 +30,51 @@ export async function authRoutes(app: FastifyInstance) {
       await registerUserService(request.body)
 
       return reply.status(201).send()
+    },
+  )
+
+  app.withTypeProvider<ZodTypeProvider>().post(
+    '/forgot-password',
+    {
+      schema: {
+        tags: ['Auth'],
+        description: 'Enviar e-mail de recuperação de senha',
+        body: z.object({ email: z.email() }),
+        response: {
+          200: z.void(),
+        },
+      },
+    },
+    async (request, reply) => {
+      await forgotPasswordUserService(request.body.email)
+
+      return reply.status(200).send()
+    },
+  )
+
+  app.withTypeProvider<ZodTypeProvider>().post(
+    '/reset-password',
+    {
+      schema: {
+        tags: ['Auth'],
+        description: 'Resetar senha',
+        body: z.object({
+          token: z.uuid(),
+          password: z.string(),
+          passwordConfirmation: z.string(),
+        }),
+        response: {
+          200: z.void(),
+        },
+      },
+    },
+    async (request, reply) => {
+      const { token, password, passwordConfirmation } = request.body
+      console.log({ token, password, passwordConfirmation })
+
+      await resetPasswordUserService(token, password)
+
+      return reply.status(200).send()
     },
   )
 

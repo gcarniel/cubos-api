@@ -14,6 +14,7 @@ const envSchema = z.object({
   AWS_REGION: z.string(),
   RESEND_API_KEY: z.string(),
   MAIL_FROM: z.string(),
+  FRONTEND_URL: z.url(),
 })
 
 export type Env = z.infer<typeof envSchema>

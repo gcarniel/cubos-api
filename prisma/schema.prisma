@@ -70,3 +70,13 @@ model MovieGenre {
 
   @@id([movieId, genreId])
 }
+
+model Token {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@map("tokens")
+}
